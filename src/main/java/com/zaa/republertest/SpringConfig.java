@@ -40,7 +40,7 @@ public class SpringConfig {
          
     @Autowired
     @Qualifier("pyramidHandler")
-    private PyramidHandler handler;
+    private ChannelHandler handler;
 
     @Bean(name = "serverBootstrap")
     public ServerBootstrap bootstrap() {
