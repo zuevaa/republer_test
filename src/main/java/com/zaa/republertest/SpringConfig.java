@@ -3,6 +3,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -40,7 +41,7 @@ public class SpringConfig {
          
     @Autowired
     @Qualifier("pyramidHandler")
-    private PyramidHandler handler;
+    private ChannelInboundHandler handler;
 
     @Bean(name = "serverBootstrap")
     public ServerBootstrap bootstrap() {

@@ -16,11 +16,14 @@ import io.netty.handler.codec.http.HttpHeaders.Names;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
 import io.netty.buffer.Unpooled;
+import org.springframework.beans.factory.annotation.Autowired;
 @Service
 @Sharable
 @Qualifier("pyramidHandler")
 public class PyramidHandler extends ChannelInboundHandlerAdapter  {
-    private final Integer WEIGHT = 50;
+    @Autowired
+    @Qualifier("pyramidWeight")
+    private HumanEdgeWeight weight;
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (!(msg instanceof DefaultHttpRequest)) {
@@ -59,7 +62,7 @@ public class PyramidHandler extends ChannelInboundHandlerAdapter  {
             respNotFound(ctx);
             return;
         }
-        Double result = getHumanEdgeWeight(level, index);
+        Double result = weight.getHumanEdgeWeight(level, index);
         ByteBuf buf = Unpooled.copiedBuffer(result.toString(), CharsetUtil.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buf);
         response.headers().set(Names.CONTENT_TYPE, "text/plain; charset=UTF-8");
@@ -74,27 +77,5 @@ public class PyramidHandler extends ChannelInboundHandlerAdapter  {
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
-    
-    public Double getHumanEdgeWeight(Integer level, Integer index) {
-        Double parent_l, parent_r;
-        if ((index < 0) || (index > level)) {
-            throw new IllegalArgumentException(); 
-        }
-        if (level == 0) {
-            return 0.0;
-        }
-        try {
-            parent_l = (getHumanEdgeWeight(level-1, index-1)+WEIGHT)/2;
-        }
-        catch (IllegalArgumentException e) {
-            parent_l = 0.0;
-        }
-        try {
-            parent_r = (getHumanEdgeWeight(level-1, index)+WEIGHT)/2;
-        }
-        catch (IllegalArgumentException e) {
-            parent_r = 0.0;
-        }
-        return parent_l + parent_r;
-    }
+   
 }
